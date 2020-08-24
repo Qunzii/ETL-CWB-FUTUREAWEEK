@@ -134,7 +134,7 @@ def parseAPI(connObj, datasetType):
                 result_list.append(datetime.strftime(dateutil.parser.parse(starttime_list[time_num]).astimezone(pytz.timezone('Asia/Taipei')), "%Y-%m-%d %H:%M:%S"))
                 result_list.append(datetime.strftime(dateutil.parser.parse(endtime_list[time_num]).astimezone(pytz.timezone('Asia/Taipei')), "%Y-%m-%d %H:%M:%S"))
                 result_list.extend(getAttributeList.get_weather_data(data_seq, location_list[data_num], endtime_list[time_num]))
-                result_list.append(datetime.now())
+                result_list.append(datetime.now(pytz.timezone('Asia/Taipei')))
 
                 result_collection.extend(result_list)
 

@@ -98,7 +98,7 @@ def parseAPI(connObj, datasetType):
         delVariable = '\'%s\'' * len(starttime_list)
         delVariable = '(' + delVariable.replace('\'\'', '\',\'') + ')'
         delVariable = delVariable.replace('\'', '')
-        delData = '''delete from cwb.main_opendata_cwb_futureaweek
+        delData = '''delete from cwb.temp_opendata_cwb_futureaweek
                         where start_time in ''' + delVariable + ''' and opendata_id = %s;'''
         deltime_list = starttime_list.copy()
         for deltime_seq in range(len(deltime_list)):
@@ -144,7 +144,7 @@ def parseAPI(connObj, datasetType):
         insVariable = insVariable.replace('\'', '')
         insCollection = insVariable * int(len(result_collection) / 29)
         insCollection = insCollection.replace(')(', '), (')
-        insData = '''INSERT INTO cwb.main_opendata_cwb_futureaweek
+        insData = '''INSERT INTO cwb.temp_opendata_cwb_futureaweek
                         (opendata_id, issued_time, location_type, location_id, county, city, latitude, longitude, start_time, end_time, t, td, 
                         rh, maxt, mint, maxat, minat, maxci, minci, pop12h, wd, ws_value, ws_level, 
                         wx_value, wx_unit, uvi_value, uvi_level, weather_desc, lastupddate)
@@ -153,6 +153,27 @@ def parseAPI(connObj, datasetType):
         
         # get feedback result
         insert = postgres.connection('', '', '', '', connObj, insData, insVar).insert()
+        print(insert)
+
+        # transfer data from temp table to main table
+        # 01. delete all data from main table with only criteria "open data id"
+        main_delVariable = []
+        main_delVariable.append(dataId_list[dataSeq_count])
+        main_delData = '''delete from cwb.main_opendata_cwb_futureaweek
+                            where opendata_id = %s;'''
+        
+        # get feedback result
+        delete = postgres.connection('', '', '', '', connObj, main_delData, main_delVariable).delete()
+        print(delete)
+
+        # 02. transfer data from temp to main table
+        main_insVariable = []
+        main_insVariable.append(dataId_list[dataSeq_count])
+        main_insData = '''insert into cwb.main_opendata_cwb_futureaweek
+                            select * from cwb.temp_opendata_cwb_futureaweek where opendata_id = %s;'''
+        
+        # get feedback result
+        insert = postgres.connection('', '', '', '', connObj, main_insData, main_insVariable).insert()
         print(insert)
 
         dataSeq_count += 1

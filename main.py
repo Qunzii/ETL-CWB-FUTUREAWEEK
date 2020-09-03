@@ -39,11 +39,51 @@ def parseAPI(connObj, datasetType):
         else:
             break
         
+        # query latest etag
+        selVariable = dataId
+        selData = '''select etag from cwb.main_opendata_cwb_etag
+                        where opendata_id = \'''' + selVariable + '''\';'''
+
+        # get feedback result
+        select = postgres.connection('', '', '', '', connObj, selData, selVariable).query()
+        latest_etag = select[0][0]
+
+        request_headers = {'If-None-Match': latest_etag}
+
+        request_status = requests.get(dataUrl, headers = request_headers)
+
+        if(request_status.status_code == 200):
+            print("open data has been updated! continue...")
+        elif(request_status.status_code == 304):
+            print("no update data available")
+            continue;
+        else:
+            print("encounter unexpected status code " + request_status.status_code)
+            break;
+        
+        etag = requests.get(dataUrl).headers.get('ETag')
+        
+        # update etag
+        updVariable = []
+        updVariable.append(etag)
+        updVariable.append(datetime.now(pytz.timezone('Asia/Taipei')))
+        updVariable.append(dataId)
+        updData = '''update cwb.main_opendata_cwb_etag
+                        set etag = %s, lastupddate = %s
+                        where opendata_id = %s;'''
+        
+        #get feedback result
+        update = postgres.connection('', '', '', '', connObj, updData, updVariable).update()
+        print(update)
+
         xml = requests.get(dataUrl).text.encode('utf-8-sig')
         weather_report = BeautifulSoup(xml, "html.parser")
 
         xml_list.append(weather_report)
         dataId_list.append(dataId)
+
+    if not xml_list:
+        return
 
     for data_seq in xml_list:
         starttime_list = []

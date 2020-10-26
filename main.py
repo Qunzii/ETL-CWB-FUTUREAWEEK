@@ -18,7 +18,7 @@ from libs import postgres
 host = '192.168.63.160'
 dbname = 'api'
 user = 'postgres'
-password = 'postgres'
+keycode = 'postgres'
 
 # 資料類型
 datasetType_list = [1,2] # 1 : 行政區；2 : 景點
@@ -219,7 +219,7 @@ def parseAPI(connObj, datasetType):
         dataSeq_count += 1
 
 # 取得連線物件
-connObj = postgres.connection(host, dbname, user, password, '', '', '').getConnectionObject()
+connObj = postgres.connection(host, dbname, user, keycode, '', '', '').getConnectionObject()
 
 # main process
 for type_seq in range(len(datasetType_list)):

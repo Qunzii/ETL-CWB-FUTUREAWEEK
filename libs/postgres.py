@@ -1,13 +1,13 @@
 import psycopg2
 
 class connection():
-    def __init__(self, host, dbname, user, password, conn, script, variable):
+    def __init__(self, host, dbname, user, keycode, conn, script, variable):
 
         # connection parameter
         self.host = host
         self.dbname = dbname
         self.user = user
-        self.password = password
+        self.keycode = keycode
 
         # connection objects
         self.conn = conn
@@ -18,9 +18,9 @@ class connection():
     
     def getConnectionObject(self):
         # judge if parameter is exist or not
-        if self.host and self.dbname and self.user and self.password:
+        if self.host and self.dbname and self.user and self.keycode:
             # combine connection string
-            conn_string = "host={0} user={1} dbname={2} password={3}".format(self.host, self.user, self.dbname, self.password)
+            conn_string = "host={0} user={1} dbname={2} password={3}".format(self.host, self.user, self.dbname, self.keycode)
             # establish connection to database
             conn = psycopg2.connect(conn_string)
             print("connection to postgres database successfully")

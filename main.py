@@ -13,12 +13,13 @@ from libs import dataList
 from libs import fetchAPIUrl
 from libs import getAttributeList
 from libs import postgres
+from libs import AESCBC
 
 # 初始化各連線物件
 host = '192.168.63.160'
 dbname = 'api'
 user = 'postgres'
-keycode = 'postgres'
+keycode = 'NlIe786398qCoG9xH1XQixbqdAgunafPALQ3gfF1Hqc='
 
 # 資料類型
 datasetType_list = [1,2] # 1 : 行政區；2 : 景點
@@ -219,7 +220,7 @@ def parseAPI(connObj, datasetType):
         dataSeq_count += 1
 
 # 取得連線物件
-connObj = postgres.connection(host, dbname, user, keycode, '', '', '').getConnectionObject()
+connObj = postgres.connection(host, dbname, user, AESCBC.AESCipher().decrypt(keycode).decode('utf-8'), '', '', '').getConnectionObject()
 
 # main process
 for type_seq in range(len(datasetType_list)):
